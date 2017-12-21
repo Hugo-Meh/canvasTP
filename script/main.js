@@ -4,18 +4,21 @@ import * as geom from "../script/p86.geom.shape.js";
 import {Toile} from "../script/p86.dom.canvas.js";
 
 document.addEventListener("DOMContentLoaded", function(event) {
-
+    console.log("knock knock!");
     let cnv = new Toile(document.getElementById('canvas0'));
+
     let ctx = cnv.ctx;
 
     let pieces = [];
-    let positon = [];
+    let position = [];
     let empty = [];
     let drag = false;
     let mX;
     let mY;
     let dx;
     let dy;
+    let x;
+    let y;
     let isfree;
     let isaccesible;
 
@@ -28,7 +31,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
         }
         columninit ++;
     }
+    console.log("hello");
+    initGame();
+    console.log("yes! who's there?");
+
     function drawGame() {
+        console.log("drawgame");
+
         ctx.moveTo(50,50);
         ctx.lineTo(450,50);
         ctx.lineTo(450,550);
@@ -38,7 +47,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         ctx.lineWidth=2;
         ctx.strokeStyle="black";
 
-        ctx.fillStyle="#d48c1b";
+        /*ctx.fillStyle="#d48c1b";
         ctx.fillRect(50,50,100,200);
         ctx.strokeRect(50,50,100,200);
         //ctx.rect(50,50,100,200);
@@ -86,7 +95,12 @@ document.addEventListener("DOMContentLoaded", function(event) {
         ctx.fillStyle="#d4b464";
         ctx.fillRect(350,450,100,100);
         ctx.strokeRect(350,450,100,100);
-        // ctx.rect(350,450,100,100);
+        // ctx.rect(350,450,100,100);*/
+        for(let i=0;i<pieces.length;i++){
+            ctx.fillStyle=pieces[i].color;
+            ctx.fillRect(pieces[i].posx,pieces[i].posy,pieces[i].width,pieces[i].height);
+            ctx.strokeRect(pieces[i].posx,pieces[i].posy,pieces[i].width,pieces[i].height);
+        }
         ctx.stroke();
     }
 
@@ -97,9 +111,10 @@ document.addEventListener("DOMContentLoaded", function(event) {
     }
 
     function initGame(){
+        console.log("initgame");
         clearCanvas();
 
-        drawGame();
+
 
         pieces.push({posx:50,posy:50,row:0,column:0,width:100,height:200,color:'#d48c1b',isDonkey:false,isDragging:false,isDraggable:false});
         pieces.push({posx:150,posy:50,row:0,column:1,width:200,height:200,color:'#b62824',isDonkey:true,isDragging:false,isDraggable:false});
@@ -114,19 +129,21 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
         empty.push({posxstart:150,posxend:250,posystart:450,posyend:550,row:4,column:1});
         empty.push({posxstart:250,posxend:350,posystart:450,posyend:550,row:4,column:2});
+
+        drawGame();
+
     }
 
 
-
-    let mouseDown = cnv.onmousedown;
-    let mouseUp = cnv.onmouseup;
-
+    cnv.canvas.addEventListener("mousedown",mouseDown);
+    cnv.canvas.addEventListener("mousemove",mouseMove);
+    cnv.canvas.addEventListener("mouseup",mouseUp);
     function mouseDown(event){
         event.preventDefault();
         event.stopPropagation();
 
-        let x = event.clientX;
-        let y = event.clientY;
+        x = event.clientX;
+        y = event.clientY;
 
         drag = false;
 
@@ -139,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     drag=true;
                     piece.isDragging=true;
                     mX=x;
-                    mY=y;
+                    mY=x;
                 }
 
             }
@@ -166,38 +183,61 @@ document.addEventListener("DOMContentLoaded", function(event) {
             event.preventDefault();
             event.stopPropagation();
 
-            let x = event.clientX;
-            let y = event.clientY;
+            x = event.clientX;
+            y = event.clientY;
 
-            dx = mX-x;
-            dy = mY-y;
+            dx = x-mX;
+            dy = y-mY;
+            /*if(mX-x>0){
+                dx = mX-x;
+            }
+            else{
+                dx = mX;
+            }
+
+            if(mY-y>0){
+                dy =mY-y;
+            }
+            else{
+                dy =y-mY;
+            }*/
 
             dragPiece();
 
-            cnv.clearRect(50,50,400,500);
+            ctx.clearRect(50,50,400,500);
             drawGame();
 
         }
 
     }
 
-    function dragPiece(){
+    /*function dragPiece(){
+        console.log("dragpiece");
         for (let i = 0; i<pieces.length; i++){
             if (pieces[i].isDragging){
                 let piece = pieces[i];
                 isfree = false;
                 isaccesible = false;
-                for (let i = 0; i <empty.length; i++){
-                    if (x>empty[i].posxstart && x<empty[i].posxend && y>empty[i].posystart && y<empty[i].posyend){
+                for (let j = 0; j <empty.length; j++){
+                    if (x>empty[j].posxstart && x<empty[j].posxend && y>empty[j].posystart && y<empty[j].posyend || x>piece.posx && x<piece.posx+piece.width && y>piece.posy && y<piece.posy+piece.height){
+                        console.log("yeahhh !!!!!! =)");
                         isfree = true;
-                        if (Math.abs(empty[i].row-piece.row)<=1){
+                        if (Math.abs(empty[j].row-piece.row)!=0 && Math.abs(empty[j].row-piece.row)<=1){
+                            console.log("deplacement en y");
                             isaccesible = true;
                             // move the piece en y
-                            pieces[i].posy+=dy;
+                            pieces[i].posy=pieces[i].posy+dy;
+                            mY=pieces[i].posy;
                         }
-                        else if (Math.abs(empty[i].column-piece.column)<=1){
+                        else if (Math.abs(empty[j].column-piece.column)!=0 &&Math.abs(empty[j].column-piece.column)<=1){
+                            console.log("deplacement en x");
+                            console.log(mX);
+                            console.log(x);
+                            console.log(dx);
+                            console.log(piece.posx);
                             // move the piece en x
-                            pieces[i].posx+=dx;
+                            pieces[i].posx=pieces[i].posx+dx;
+                            mX=pieces[i].posx;
                         }
                     }
                 }
@@ -208,36 +248,39 @@ document.addEventListener("DOMContentLoaded", function(event) {
     }
 
     function clipPiece(){
-        let compareX=1000;
-        let compareY=1000;
+        console.log("begin clipping");
+        let compareXf=1000;
+        let compareYf=1000;
+        let compareX;
+        let compareY;
         let piece;
         for (let i = 0; i<pieces.length; i++){
             if (pieces[i].isDragging){
-               piece = pieces[i];
+                piece = pieces[i];
+                for (let j = 0; j<position.length; j++){
+                    compareX = Math.abs(piece.posx-position[j].posx);
+                    compareY = Math.abs(piece.posy-position[j].posy);
+                    if (compareX<compareXf){
+                        compareXf = Math.abs(piece.posx-position[j].posx);
+                        pieces[i].posx = position[j].posx;
+                        pieces[i].column = position[j].column;
+                    }
+
+                    if (compareY<compareYf){
+                        compareY = Math.abs(piece.posy-position[j].posy);
+                        pieces[i].posy = position[j].posy;
+                        pieces[i].row = position[j].row;
+                    }
+
+                    if (compareX<50 && compareY<50){
+                        break;
+                    }
+
+                }
             }
         }
-
-        for (let i = 0; i<positon.length; i++){
-            if (Math.abs(piece.posx-positon.posx)<compareX){
-                compareX = Math.abs(piece.posx-positon.posx);
-                piece.posx = positon[i].posx;
-                piece.column = positon[i].column;
-            }
-
-            if (Math.abs(piece.posy-positon.posy)<compareY){
-                compareY = Math.abs(piece.posy-positon.posy);
-                piece.posy = positon[i].posy;
-                piece.row = positon[i].row;
-            }
-
-            if (compareX<50 && compareY<50){
-                break;
-            }
-
-        }
-
         drawGame();
-    }
+    }*/
 
 
 });
