@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     drag=true;
                     piece.isDragging=true;
                     mX=x;
-                    mY=x;
+                    mY=y;
                 }
 
             }
@@ -204,14 +204,14 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
             dragPiece();
 
-            ctx.clearRect(50,50,400,500);
+            ctx.clearRect(0,0,cnv.width,cnv.height);
             drawGame();
 
         }
 
     }
 
-    /*function dragPiece(){
+    function dragPiece(){
         console.log("dragpiece");
         for (let i = 0; i<pieces.length; i++){
             if (pieces[i].isDragging){
@@ -260,7 +260,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 for (let j = 0; j<position.length; j++){
                     compareX = Math.abs(piece.posx-position[j].posx);
                     compareY = Math.abs(piece.posy-position[j].posy);
-                    if (compareX<compareXf){
+                    if (x>position[j].posxstart && x<position[j].posxend  && y>position[j].posystart && y<position[j].posyend){
+                        pieces[i].posx = position[j].posx;
+                        pieces[i].column = position[j].column;
+                        pieces[i].posy = position[j].posy;
+                        pieces[i].row = position[j].row;
+                    }
+                    /*if (compareX<compareXf){
                         compareXf = Math.abs(piece.posx-position[j].posx);
                         pieces[i].posx = position[j].posx;
                         pieces[i].column = position[j].column;
@@ -274,13 +280,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
                     if (compareX<50 && compareY<50){
                         break;
-                    }
+                    }*/
 
                 }
             }
         }
         drawGame();
-    }*/
+    }
 
 
 });
